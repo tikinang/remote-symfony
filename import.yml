@@ -1,0 +1,12 @@
+services:
+  - hostname: symfony
+    type: ubuntu@22.04
+    ports:
+      - port: 22
+        httpSupport: false
+    minContainers: 1
+    maxContainers: 1
+    verticalAutoscaling:
+      minVCpu: 20
+      minRam: 8
+      minDisk: 5
