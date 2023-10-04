@@ -7,12 +7,21 @@ symfony:
       - add-apt-repository -y ppa:anargy/jammy
       - apt-get update
       - apt-get install -y openssh-server
+      - systemctl enable ssh
+      - systemctl start ssh
       - mkdir -p /root/.ssh
       - |
-        echo << EOF > /root/.ssh/authorized_keys
+        cat << EOF > /root/.ssh/authorized_keys
         ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCs0bWKBneTlfRkyjIBtKJtgM23b/UW9hmoUQH3t1H+ut1bU7k7ciFKe34iYDUAyraPnXIjH9/Dt4H4xj3/0f04DHbE1qVHQxTSvdr2t08zKNAkKXNULsHUyvggH0oIUJpC01mKDKhyATvGWm/3t0rRRipkskEqxbGFxQr5K5v5HsYcM1GLxAfZOKKkhp5PIEybj+d9WA2an2m1BIUYW29iCHgnarG8i1+9IQmC6FB6UE0pec41oz0AM6NMUc2E7SHveHU0s+JXHsFOBB0JZU29mYbjtsVm4lR8YvVzQlL5kHHwfBlgXBPZDTrCnIGYt0pbhN3fr4aq2AYUP19rxQRdp0NNHLsootHDcErgWcEIDDzwDia1Hx8WAT9/LHCsYUV0CtW7sL/kHiPGOJmcONOAL2rl2u2PHYWmpAsNBaZOeXs0bVsHASu0XjippHHKr0/+bJta7SNHGfaipXeKT6PwCr4BBY77jHsvsHyFSaJSHofOw/KkUJJUMNZMAD7KP0c= tikinang@zenbook
         ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDDfz41/mzb7Pb7sFbAJonnBHxdB+Cjtq0CaxhwI4+S/hEcAJxm+78ghy71rjC4HcLpuGxANIbtS6F/VuLAcVj01sl6N3BFFWKC7pXKMI4ItaK4ZtTWy0cdxwXII6QDGp23UDi5TsqsrnfAyZ7B5laSZ+0z7W9p0Mg11wS2bHGKH+LXH2z9wPn3sabqBEcyRv0tbZ4R6l6YPcpT0/duDvZU2FKPzIspv8pRm8VAfatV05VKCFtr+nHry/Mw4Hwep1hd9s56QohbB5jfTZ3EDIqH4xWYjTh+Awk4Sp3lZLsKxGCNsbGe6aCXUgUHKqyXVXQLviJiwR51LICM1Eyby5RM2GrvIOIXIbKbamoLpPszXpNhQKsK3liwbOQy3l9DcFDKGDozTjfMKbDBCddMdcil9byXipYwQY8ktNRiQOWIZlfu1W0/JK1m/sK/mH+ggC1Ra+95+/3avsy3wrdd5vOZ+R07a4XCKYppN6jA76hskRnjkuEzW5FIxtJAYzUzDRn+mFCJXaK+qcNSqvWpkM+0MZqOpEcEcul6D0VOHMTuRiAzbkbJNgM/lTkMSTCRQEiGhC3iUb0ZRtzHWitJDYspRv3gjzSLPXskpTyyqKcs2y5qDYIvRA6a1wUMwbEuYqcjukRAA+wGuL8kh+n144DD2i2WGyHoCHK/AHsHyaxIlw== tikinang@gmail.com
         EOF
+      - apt-get install php8.1
+      - curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
+      - HASH=`curl -sS https://composer.github.io/installer.sig`; php -r "if (hash_file('SHA384', '/tmp/composer-setup.php') === '$HASH') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+      - php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
       - wget -q https://download-cdn.jetbrains.com/webide/PhpStorm-2023.2.2.tar.gz
       - tar xzf PhpStorm-*.tar.gz -C /opt/
-    start: ./run.sh
+    init:
+      - git clone https://github.com/tikinang/remote-symfony /var/www/remote-symfony
+      - /opt/PhpStorm-232.9921.55/bin/remote-dev-server.sh warm-up /var/www/remote-symfony
+    start: /opt/PhpStorm-232.9921.55/bin/remote-dev-server.sh run /var/www/remote-symfony/

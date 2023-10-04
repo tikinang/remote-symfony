@@ -10,3 +10,8 @@ services:
       minVCpu: 20
       minRam: 8
       minDisk: 5
+    envVariables:
+      COMPOSER_ALLOW_SUPERUSER: 1
+      REMOTE_DEV_TRUST_PROJECTS: 1
+      REMOTE_DEV_NON_INTERACTIVE: 1
+      REMOTE_DEV_NEW_UI_ENABLED: 1
